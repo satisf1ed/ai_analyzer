@@ -78,13 +78,13 @@ def fetch_comments(video_id, api_key):
                     'Comment': comment['textDisplay']
                 })
                 if 'nextPageToken' in response:
-                    # response = youtube.commentThreads().list(
-                    #     part='snippet',
-                    #     videoId=video_id,
-                    #     textFormat='plainText',
-                    #     maxResults=100,
-                    #     pageToken=response['nextPageToken']
-                    # ).execute()
+                    response = youtube.commentThreads().list(
+                        part='snippet',
+                        videoId=video_id,
+                        textFormat='plainText',
+                        maxResults=100,
+                        pageToken=response['nextPageToken']
+                    ).execute()
                     break
                 else:
                     break
