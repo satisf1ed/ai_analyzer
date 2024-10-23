@@ -1,3 +1,4 @@
+import json
 import os
 import re
 
@@ -14,19 +15,42 @@ youtube = build('youtube', 'v3', developerKey=API_KEY)
 
 
 def get_channel_info(channel_id):
-    request = youtube.channels().list(part='snippet,statistics', id=channel_id)
+    request = youtube.channels().list(
+        part='snippet,contentDetails,statistics,topicDetails,status,brandingSettings,contentOwnerDetails,localizations',
+         id=channel_id)
+
+    # auditDetails - doesn't have permission; defaultLanguage, selfDeclaredMadeForKids, trackingAnalyticsAccountId,
+    # contentOwner, timeLinked - None
+
     response = request.execute()
 
     channel_info = response['items'][0]
     return {
-      'channel_title': channel_info['snippet']['title'],
-      'channel_description': channel_info['snippet']['description'],
-      'channel_creation_date': channel_info['snippet']['publishedAt'],
-      'subscribers': channel_info['statistics']['subscriberCount'],
-      'total_views': channel_info['statistics']['viewCount'],
-      'video_count': channel_info['statistics']['videoCount'],
-      'channel_thumbnail': channel_info['snippet']['thumbnails']['default']['url']
-      }
+        'title': channel_info['snippet']['title'],
+        'description': channel_info['snippet']['description'],
+        'customUrl': channel_info['snippet']['customUrl'],
+        'publishedAt': channel_info['snippet']['publishedAt'],
+        'thumbnail': channel_info['snippet']['thumbnails']['default']['url'],
+        'localizedTitle': channel_info['snippet']['localized']['title'],
+        'localizedDescription': channel_info['snippet']['localized']['description'],
+        'county': channel_info['snippet']['country'],
+        'relatedPlaylistsLikes': channel_info['contentDetails']['relatedPlaylists']['likes'],
+        'relatedPlaylistsUploads': channel_info['contentDetails']['relatedPlaylists']['uploads'],
+        'viewCount': channel_info['statistics']['viewCount'],
+        'subscribersCount': channel_info['statistics']['subscriberCount'],
+        'hiddenSubscriberCount': channel_info['statistics']['hiddenSubscriberCount'],
+        'videoCount': channel_info['statistics']['videoCount'],
+        'topicCategories': channel_info['topicDetails']['topicCategories'],
+        'privacyStatus': channel_info['status']['privacyStatus'],
+        'isLinked': channel_info['status']['isLinked'],
+        'longUploadsStatus': channel_info['status']['longUploadsStatus'],
+        'madeForKids': channel_info['status']['madeForKids'],
+        'brandingSettingsChannelTitle': channel_info['brandingSettings']['channel']['title'],
+        'brandingSettingsChannelDescription': channel_info['brandingSettings']['channel']['description'],
+        'brandingSettingsChannelKeywords': channel_info['brandingSettings']['channel']['keywords'],
+        'brandingSettingsChannelUnsubscribedTrailer':
+            channel_info['brandingSettings']['channel'].get('unsubscribedTrailer', ''),
+    }
 
 
 def get_latest_videos(channel_id, max_results=10):
