@@ -1,5 +1,5 @@
 from sqlalchemy import (
-    BigInteger, Column, ForeignKey, Boolean, String, Time, JSON, create_engine
+    BigInteger, Column, ForeignKey, Boolean, String, Time, JSON, create_engine, Double, DateTime, ARRAY
 )
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -29,8 +29,28 @@ class Channel(Base):
     id = Column(BigInteger, primary_key=True)
     title = Column(String, nullable=False)
     description = Column(String)
-    publishedAt = Column(Time)
-    defaultLan = Column(String)
+    customUrl = Column(String)
+    publishedAt = Column(DateTime)
+    thumbnail = Column(String)
+    localizedTitle = Column(String)
+    localizedDescription = Column(String)
+    county = Column(String)
+    relatedPlaylistsLikes = Column(String)
+    relatedPlaylistsUploads = Column(String)
+    viewCount = Column(BigInteger)
+    subscribersCount = Column(BigInteger)
+    hiddenSubscriberCount = Column(Boolean)
+    videoCount = Column(BigInteger)
+    topicCategories = Column(ARRAY(String))
+    privacyStatus = Column(String)
+    isLinked = Column(Boolean)
+    longUploadsStatus = Column(String)
+    madeForKids = Column(Boolean)
+    brandingSettingsChannelTitle = Column(String)
+    brandingSettingsChannelDescription = Column(String)
+    brandingSettingsChannelKeywords = Column(String)
+    brandingSettingsChannelUnsubscribedTrailer = Column(String)
+
 
     # Relationships
     videos = relationship('Video', back_populates='channel')
@@ -39,7 +59,7 @@ class Channel(Base):
 
     def __repr__(self):
         return (f"<Channel(id={self.id}, title='{self.title}', description='{self.description}', "
-                f"publishedAt='{self.publishedAt}', defaultLan='{self.defaultLan}')>")
+                f"publishedAt='{self.publishedAt}'>")
 
 
 class Video(Base):
@@ -67,15 +87,33 @@ class Video(Base):
     __tablename__ = 'videos'
 
     id = Column(BigInteger, primary_key=True)
-    publishedAt = Column(Time)
+    publishedAt = Column(DateTime)
     channelId = Column(BigInteger, ForeignKey('channels.id'), nullable=False)
     title = Column(String, nullable=False)
     description = Column(String)
+    thumbnail = Column(String)
     channelTitle = Column(String)
-    tags = Column(JSON)
-    categoryId = Column(BigInteger)
+    tags = Column(ARRAY(String))
+    liveBroadcastContent = Column(String)
     defaultLanguage = Column(String)
+    defaultAudioLanguage = Column(String)
+    categoryId = Column(String)
     duration = Column(String)
+    dimension = Column(String)
+    definition = Column(String)
+    caption = Column(String)
+    licensedContent = Column(Boolean)
+    uploadStatus = Column(String)
+    privacyStatus = Column(String)
+    license = Column(String)
+    embeddable = Column(Boolean)
+    publicStatsViewable = Column(Boolean)
+    madeForKids = Column(Boolean)
+    viewsCount = Column(BigInteger)
+    likesCount = Column(BigInteger)
+    favoriteCount = Column(BigInteger)
+    comment_count = Column(BigInteger)
+
 
     # Relationships
     channel = relationship('Channel', back_populates='videos')
@@ -107,6 +145,8 @@ class Subtitle(Base):
     id = Column(BigInteger, primary_key=True)
     videoId = Column(BigInteger, ForeignKey('videos.id'), nullable=False)
     text = Column(String)
+    start = Column(Double)
+    duration = Column(Double)
 
     # Relationships
     video = relationship('Video', back_populates='subtitles')
@@ -158,8 +198,8 @@ class Comment(Base):
     viewerRating = Column(String)
     likeCount = Column(BigInteger)
     moderationStatus = Column(String)
-    publishedAt = Column(Time)
-    updatedAt = Column(Time)
+    publishedAt = Column(DateTime)
+    updatedAt = Column(DateTime)
 
     # Relationships
     video = relationship('Video', back_populates='comments')

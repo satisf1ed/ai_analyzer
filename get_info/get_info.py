@@ -30,7 +30,7 @@ def get_video_details(video_id: str) -> dict | None:
             'description': video_info['snippet']['description'],
             'thumbnail': video_info['snippet']['thumbnails']['default']['url'],
             'channelTitle': video_info['snippet']['channelTitle'],
-            'tags': video_info['snippet'].get('tags', []),
+            'tags': video_info['snippet'].get('tags', None),
             'liveBroadcastContent': video_info['snippet']['liveBroadcastContent'],
             'defaultLanguage': video_info['snippet'].get('defaultLanguage', None),
             'defaultAudioLanguage': video_info['snippet'].get('defaultAudioLanguage', None),
@@ -46,10 +46,10 @@ def get_video_details(video_id: str) -> dict | None:
             'embeddable': video_info['status']['embeddable'],
             'publicStatsViewable': video_info['status']['publicStatsViewable'],
             'madeForKids': video_info['status']['madeForKids'],
-            'viewsCount': video_info['statistics'].get('viewCount', 0),
-            'likesCount': video_info['statistics'].get('likeCount', 0),
-            'favoriteCount': video_info['statistics'].get('favoriteCount', 0),
-            'comment_count': video_info['statistics'].get('commentCount', 0),
+            'viewsCount': video_info['statistics'].get('viewCount', None),
+            'likesCount': video_info['statistics'].get('likeCount', None),
+            'favoriteCount': video_info['statistics'].get('favoriteCount', None),
+            'comment_count': video_info['statistics'].get('commentCount', None),
             }
         return answer
     else:
