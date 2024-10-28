@@ -1,28 +1,47 @@
 from sqlalchemy import (
-    BigInteger, Column, ForeignKey, Boolean, String, Time, JSON, create_engine, Double, DateTime, ARRAY
+    BigInteger, Column, ForeignKey, Boolean, String, Time, create_engine, Double, DateTime, ARRAY
 )
-from sqlalchemy.orm import relationship, sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
+from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
 
 
 class Channel(Base):
     """
-        Represents a YouTube channel with metadata such as title, description, and language.
+    Represents a YouTube channel with metadata including title, description, and various settings.
 
-        Attributes:
-            id (BigInteger): Primary key identifier for the channel.
-            title (str): Title of the channel.
-            description (str): Description of the channel content.
-            publishedAt (Time): Time when the channel was published.
-            defaultLan (str): Default language for the channel.
+    Attributes:
+        id (BigInteger): Unique identifier for the channel.
+        title (str): The title of the YouTube channel.
+        description (str): Detailed description of the channel's content.
+        customUrl (str): Custom URL for the channel.
+        publishedAt (DateTime): Date and time of the channel's publication.
+        thumbnail (str): URL to the channel's thumbnail image.
+        localizedTitle (str): Localized version of the channel's title.
+        localizedDescription (str): Localized version of the channel's description.
+        county (str): Country associated with the channel.
+        relatedPlaylistsLikes (str): Playlist ID for videos liked by the channel.
+        relatedPlaylistsUploads (str): Playlist ID for videos uploaded by the channel.
+        viewCount (BigInteger): Total view count of the channel.
+        subscribersCount (BigInteger): Total subscriber count of the channel.
+        hiddenSubscriberCount (bool): Indicates if subscriber count is hidden.
+        videoCount (BigInteger): Total number of videos on the channel.
+        topicCategories (ARRAY of str): List of topic categories associated with the channel.
+        privacyStatus (str): Privacy status of the channel.
+        isLinked (bool): Indicates if the channel is linked to a Google account.
+        longUploadsStatus (str): Status of long uploads for the channel.
+        madeForKids (bool): Indicates if the channel is designated for kids.
+        brandingSettingsChannelTitle (str): Custom title in branding settings.
+        brandingSettingsChannelDescription (str): Custom description in branding settings.
+        brandingSettingsChannelKeywords (str): Custom keywords in branding settings.
+        brandingSettingsChannelUnsubscribedTrailer (str): Trailer URL shown to unsubscribed viewers.
 
-        Relationships:
-            videos (Video): Relationship with the `Video` class.
-            authored_comments (Comment): Relationship with comments authored by this channel.
-            received_comments (Comment): Relationship with comments received by this channel.
-        """
+    Relationships:
+        videos (Video): List of `Video` objects related to the channel.
+        authored_comments (Comment): List of `Comment` objects authored by this channel.
+        received_comments (Comment): List of `Comment` objects directed to this channel.
+    """
 
     __tablename__ = 'channels'
 
@@ -51,7 +70,6 @@ class Channel(Base):
     brandingSettingsChannelKeywords = Column(String)
     brandingSettingsChannelUnsubscribedTrailer = Column(String)
 
-
     # Relationships
     videos = relationship('Video', back_populates='channel')
     authored_comments = relationship('Comment', back_populates='author_channel', foreign_keys='Comment.authorChannelId')
@@ -64,25 +82,42 @@ class Channel(Base):
 
 class Video(Base):
     """
-        Represents a video uploaded to a YouTube channel.
+    Represents a video on a YouTube channel, with metadata about publication, content, and categorization.
 
-        Attributes:
-            id (BigInteger): Primary key identifier for the video.
-            publishedAt (Time): Timestamp for when the video was published.
-            channelId (BigInteger): Foreign key reference to the channel's ID.
-            title (str): Title of the video.
-            description (str): Description of the video content.
-            channelTitle (str): Name of the channel that published the video.
-            tags (JSON): JSON field containing tags associated with the video.
-            categoryId (BigInteger): ID of the video category.
-            defaultLanguage (str): Default language for the video.
-            duration (str): Duration of the video.
+    Attributes:
+        id (BigInteger): Unique identifier for the video.
+        publishedAt (DateTime): Publication timestamp for the video.
+        channelId (BigInteger): Foreign key reference to the associated channel's ID.
+        title (str): Title of the video.
+        description (str): Detailed description of the video's content.
+        thumbnail (str): URL to the video's thumbnail image.
+        channelTitle (str): Name of the channel that uploaded the video.
+        tags (ARRAY of str): Tags associated with the video.
+        liveBroadcastContent (str): Indicates if the video is a live broadcast.
+        defaultLanguage (str): Default language of the video's content.
+        defaultAudioLanguage (str): Default audio language of the video's content.
+        categoryId (str): ID of the video's category.
+        duration (str): Duration of the video in ISO 8601 format.
+        dimension (str): Dimension of the video (e.g., 2D, 3D).
+        definition (str): Quality definition (e.g., HD, SD).
+        caption (str): Indicates if captions are available.
+        licensedContent (bool): Indicates if the video is licensed content.
+        uploadStatus (str): Upload status of the video.
+        privacyStatus (str): Privacy status of the video.
+        license (str): License type for the video.
+        embeddable (bool): Indicates if the video is embeddable on other sites.
+        publicStatsViewable (bool): Indicates if public statistics are viewable.
+        madeForKids (bool): Indicates if the video is designated for kids.
+        viewsCount (BigInteger): View count of the video.
+        likesCount (BigInteger): Like count for the video.
+        favoriteCount (BigInteger): Favorite count for the video.
+        comment_count (BigInteger): Comment count for the video.
 
-        Relationships:
-            channel (Channel): Relationship with the `Channel` class.
-            subtitles (Subtitle): Relationship with subtitles associated with the video.
-            comments (Comment): Relationship with comments associated with the video.
-        """
+    Relationships:
+        channel (Channel): The `Channel` object associated with the video.
+        subtitles (Subtitle): List of `Subtitle` objects associated with the video.
+        comments (Comment): List of `Comment` objects associated with the video.
+    """
 
     __tablename__ = 'videos'
 
@@ -114,7 +149,6 @@ class Video(Base):
     favoriteCount = Column(BigInteger)
     comment_count = Column(BigInteger)
 
-
     # Relationships
     channel = relationship('Channel', back_populates='videos')
     subtitles = relationship('Subtitle', back_populates='video')
@@ -129,16 +163,18 @@ class Video(Base):
 
 class Subtitle(Base):
     """
-        Represents subtitles associated with a specific video.
+    Represents subtitles linked to a YouTube video, containing textual content and timing information.
 
-        Attributes:
-            id (BigInteger): Primary key identifier for the subtitle.
-            videoId (BigInteger): Foreign key reference to the associated video's ID.
-            text (str): The subtitle text.
+    Attributes:
+        id (BigInteger): Unique identifier for the subtitle.
+        videoId (BigInteger): Foreign key reference to the associated video's ID.
+        text (str): Subtitle text.
+        start (Double): Start time of the subtitle in seconds.
+        duration (Double): Duration of the subtitle in seconds.
 
-        Relationships:
-            video (Video): Relationship with the `Video` class.
-        """
+    Relationships:
+        video (Video): The `Video` object associated with the subtitle.
+    """
 
     __tablename__ = 'subtitles'
 
@@ -216,6 +252,6 @@ class Comment(Base):
                 f"publishedAt='{self.publishedAt}', updatedAt='{self.updatedAt}')>")
 
 
-engine = create_engine('sqlite:///youtube.db')
+engine = create_engine('postgresql://admin:admin@localhost:5432/postgres')
 
 Base.metadata.create_all(engine)
