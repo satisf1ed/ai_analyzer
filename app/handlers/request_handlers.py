@@ -72,6 +72,7 @@ def get_info_from_last_videos_in_channel(channel_url: str, video_count: int):
 
     for video_id in video_ids:
         get_info.get_video_details(video_id)
+        get_info.fetch_comments(video_id)
 
 
 def get_video_info(video_id):
