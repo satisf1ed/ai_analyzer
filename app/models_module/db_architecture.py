@@ -3,7 +3,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import declarative_base
-from db_sessions import engine
+from ..models_module.db_sessions import engine
 
 Base = declarative_base()
 
@@ -256,8 +256,8 @@ class Comment(Base):
                 f"authorChannelUrl='{self.authorChannelUrl}', authorChannelId={self.authorChannelId}, "
                 f"channelId={self.channelId}, textDisplay='{self.textDisplay}', textOriginal='{self.textOriginal}', "
                 f"parentId={self.parentId}, canRate={self.canRate}, viewerRating='{self.viewerRating}', "
-                f"likeCount={self.likeCount}, moderationStatus='{self.moderationStatus}', "
-                f"publishedAt='{self.publishedAt}', updatedAt='{self.updatedAt}')>")
+                f"likeCount={self.likeCount}', publishedAt='{self.publishedAt}', "
+                f"updatedAt='{self.updatedAt}')>")
 
 
 Base.metadata.create_all(engine)

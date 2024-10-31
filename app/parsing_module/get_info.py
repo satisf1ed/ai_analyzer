@@ -4,7 +4,7 @@ import logging
 from googleapiclient.discovery import build
 from dotenv import load_dotenv
 from youtube_transcript_api import YouTubeTranscriptApi
-from save_info import save_channel_info, save_video_info, save_comments, check_exists_channel_by_id
+from ..models_module import work_with_models
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -25,7 +25,7 @@ def get_video_details(video_id: str):
     if response.status_code == 200:
         video_info = response.json()['items'][0]
         channel_id = video_info['snippet']['channelId']
-        if not check_exists_channel_by_id(channel_id):
+        if not work_with_models.check_exists_channel_by_id(channel_id):
             get_channel_info(channel_id)
 
         urlApi = 'https://returnyoutubedislikeapi.com/votes'
@@ -39,7 +39,7 @@ def get_video_details(video_id: str):
 
         if response2.status_code == 200:
             videoApi = response2.json()
-            save_video_info(video_info, videoApi, channel_id, video_id)
+            work_with_models.save_video_info(video_info, videoApi, channel_id, video_id)
     else:
         print(f'Error: {response.status_code}')
 
@@ -54,7 +54,7 @@ def get_channel_info(channel_id):
 
     response = request.execute()
     channel_info = response['items'][0]
-    save_channel_info(channel_info, channel_id)
+    work_with_models.save_channel_info(channel_info, channel_id)
 
 
 def fetch_comments(video_id: str):
@@ -69,13 +69,13 @@ def fetch_comments(video_id: str):
         for item in response['items']:
             comment_id = item['snippet']['topLevelComment']['id']
             comment = item['snippet']['topLevelComment']['snippet']
-            save_comments(comment, comment_id)
+            work_with_models.save_comments(comment, comment_id)
             counter += 1
             if 'replies' in item:
                 for reply in item['replies']['comments']:
                     reply_comment_id = reply['id']
                     reply_comment = reply['snippet']
-                    save_comments(reply_comment, reply_comment_id)
+                    work_with_models.save_comments(reply_comment, reply_comment_id)
                     counter += 1
         logger.info(' Parsing successfully {counter} comments for video_id - {video_id}'.format(
             counter=counter, video_id=video_id))

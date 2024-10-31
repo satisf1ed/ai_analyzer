@@ -1,12 +1,12 @@
 from sqlalchemy import exists
 
-from db_architecture import Channel, Video, Comment
-from db_sessions import session
+from ..models_module import db_architecture
+from ..models_module import db_sessions
 
 
 def save_channel_info(channel_info: dict, channel_id: str):
     if not check_exists_channel_by_id(channel_id):
-        channel_imp = Channel(
+        channel_imp = db_architecture.Channel(
             channelId=channel_id,
             title=channel_info.get('snippet', {}).get('title'),
             description=channel_info.get('snippet', {}).get('description', None),
@@ -35,13 +35,13 @@ def save_channel_info(channel_info: dict, channel_id: str):
                                                                                                                None),
             brandingSettingsChannelUnsubscribedTrailer=channel_info.get('brandingSettings', {}).get('channel', {}).get(
                 'unsubscribedTrailer', None))
-        session.add(channel_imp)
-        session.commit()
+        db_sessions.session.add(channel_imp)
+        db_sessions.session.commit()
 
 
 def save_video_info(video_info: dict, video_api_info: dict, channel_id: str, video_id: str):
     if not check_exists_video_by_id(video_id):
-        video_imp = Video(
+        video_imp = db_architecture.Video(
             channelId=channel_id,
             videoId=video_id,
             publishedAt=video_info.get('snippet', {}).get('publishedAt'),
@@ -72,12 +72,13 @@ def save_video_info(video_info: dict, video_api_info: dict, channel_id: str, vid
             ratingFromApi=video_api_info.get('rating', None),
             favoriteCount=video_info.get('statistics', {}).get('favoriteCount', None),
             commentCount=video_info.get('statistics', {}).get('commentCount', None))
-        session.add(video_imp)
-        session.commit()
+        db_sessions.session.add(video_imp)
+        db_sessions.session.commit()
+
 
 def save_comments(comment: dict, comment_id: str):
     if not check_exists_comment_by_id(comment_id):
-        comment_imp = Comment(
+        comment_imp = db_architecture.Comment(
             commentId=comment_id,
             videoId=comment.get('videoId', None),
             authorDisplayName=comment.get('authorDisplayName', None),
@@ -92,13 +93,12 @@ def save_comments(comment: dict, comment_id: str):
             likeCount=comment.get('likeCount', None),
             publishedAt=comment.get('publishedAt', None),
             updatedAt=comment.get('updatedAt', None))
-        session.add(comment_imp)
-        session.commit()
-
+        db_sessions.session.add(comment_imp)
+        db_sessions.session.commit()
 
 
 def check_exists_video_by_id(video_id: str):
-    exists_query = session.query(exists().where(Video.videoId == video_id)).scalar()
+    exists_query = db_sessions.session.query(exists().where(db_architecture.Video.videoId == video_id)).scalar()
 
     if exists_query:
         return True
@@ -107,7 +107,7 @@ def check_exists_video_by_id(video_id: str):
 
 
 def check_exists_channel_by_id(channel_id: str):
-    exists_query = session.query(exists().where(Channel.channelId == channel_id)).scalar()
+    exists_query = db_sessions.session.query(exists().where(db_architecture.Channel.channelId == channel_id)).scalar()
 
     if exists_query:
         return True
@@ -116,7 +116,7 @@ def check_exists_channel_by_id(channel_id: str):
 
 
 def check_exists_comment_by_id(comment_id: str):
-    exists_query = session.query(exists().where(Comment.commentId == comment_id)).scalar()
+    exists_query = db_sessions.session.query(exists().where(db_architecture.Comment.commentId == comment_id)).scalar()
 
     if exists_query:
         return True

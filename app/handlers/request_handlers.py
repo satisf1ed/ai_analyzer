@@ -4,7 +4,7 @@ import re
 from dotenv import load_dotenv
 from googleapiclient.discovery import build
 import requests
-import get_info
+from ..parsing_module import get_info
 
 load_dotenv()
 
@@ -61,19 +61,19 @@ def get_channel_id(channel_handle: str):
         return None
 
 
-def main(channel_url: str, video_count: int):
+def get_info_from_last_videos_in_channel(channel_url: str, video_count: int):
     channel_handle = get_channel_handle_by_url(channel_url)
     channel_id = get_channel_id(channel_handle)
-
-    channel_info = get_info.get_channel_info(channel_id)
+    get_info.get_channel_info(channel_id)
 
     video_ids = get_latest_videos(channel_id, video_count)
     print(*video_ids)
     print(len(video_ids))
+
     for video_id in video_ids:
         get_info.get_video_details(video_id)
 
 
-youtube_channel_url = input("Введите url канала YouTube: ")
-video_count = int(input("Введите количество видео, которые необходимо сохранить(0, если все, что есть на канале): "))
-main(youtube_channel_url, video_count)
+def get_video_info(video_id):
+    get_info.get_video_details(video_id)
+    get_info.fetch_comments(video_id)

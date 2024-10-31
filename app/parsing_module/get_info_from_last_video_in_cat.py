@@ -2,7 +2,7 @@ import requests
 import os
 import logging
 from dotenv import load_dotenv
-from ai_analyzer import get_info
+from ai_analyzer.app.parsing_module import get_info
 
 load_dotenv()
 
