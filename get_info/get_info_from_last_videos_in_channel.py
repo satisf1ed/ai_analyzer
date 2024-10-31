@@ -13,10 +13,10 @@ YOUTUBE_API_URL = 'https://www.googleapis.com/youtube/v3/'
 youtube = build('youtube', 'v3', developerKey=API_KEY)
 
 
-def get_latest_videos(channel_id, max_results=None):
+def get_latest_videos(channel_id, max_results):
     request = youtube.search().list(part='id', channelId=channel_id, order='date', maxResults=max_results)
     response = request.execute()
-    if not max_results or response['pageInfo']['totalResults'] < max_results:
+    if max_results == 0 or response['pageInfo']['totalResults'] < max_results:
         max_results = response['pageInfo']['totalResults']
     video_ids = [item['id']['videoId'] for item in response['items'] if item['id']['kind'] == 'youtube#video']
     next_page_token = response.get('nextPageToken', None)
@@ -61,7 +61,7 @@ def get_channel_id(channel_handle: str):
         return None
 
 
-def main(channel_url: str):
+def main(channel_url: str, videdo_count: int):
     channel_handle = get_channel_handle_by_url(channel_url)
     channel_id = get_channel_id(channel_handle)
     print(channel_id)
@@ -69,14 +69,15 @@ def main(channel_url: str):
     channel_info = get_info.get_channel_info(channel_id)
     print("Channel Info:", channel_info)
 
-    video_ids = get_latest_videos(channel_id)
+    video_ids = get_latest_videos(channel_id, videdo_count)
     print(*video_ids)
     print(len(video_ids))
     for video_id in video_ids:
-        video_info = get_info.get_video_details(video_id)
+        video_info = get_info.get_video_details(video_id, channel_id)
         print(video_info)
+        print(get_info.fetch_comments(video_id))
 
 
 youtube_channel_url = input("Введите url канала YouTube: ")
-
-main(youtube_channel_url)
+video_count = int(input("Введите количество видео, которые необходимо сохранить(0, если все, что есть на канале): "))
+main(youtube_channel_url, video_count)

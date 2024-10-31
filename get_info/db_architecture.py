@@ -1,8 +1,9 @@
 from sqlalchemy import (
-    BigInteger, Column, ForeignKey, Boolean, String, Time, create_engine, Double, DateTime, ARRAY
+    BigInteger, Column, ForeignKey, Boolean, String, Time, Double, DateTime, ARRAY
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import declarative_base
+from db_sessions import engine
 
 Base = declarative_base()
 
@@ -45,34 +46,35 @@ class Channel(Base):
 
     __tablename__ = 'channels'
 
-    id = Column(BigInteger, primary_key=True)
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    channelId = Column(String, nullable=False, unique=True)
     title = Column(String, nullable=False)
-    description = Column(String)
-    customUrl = Column(String)
-    publishedAt = Column(DateTime)
-    thumbnail = Column(String)
-    localizedTitle = Column(String)
-    localizedDescription = Column(String)
-    county = Column(String)
-    relatedPlaylistsLikes = Column(String)
-    relatedPlaylistsUploads = Column(String)
-    viewCount = Column(BigInteger)
-    subscribersCount = Column(BigInteger)
-    hiddenSubscriberCount = Column(Boolean)
-    videoCount = Column(BigInteger)
-    topicCategories = Column(ARRAY(String))
-    privacyStatus = Column(String)
-    isLinked = Column(Boolean)
-    longUploadsStatus = Column(String)
-    madeForKids = Column(Boolean)
-    brandingSettingsChannelTitle = Column(String)
-    brandingSettingsChannelDescription = Column(String)
-    brandingSettingsChannelKeywords = Column(String)
-    brandingSettingsChannelUnsubscribedTrailer = Column(String)
+    description = Column(String, nullable=False)
+    customUrl = Column(String, nullable=True)
+    publishedAt = Column(DateTime, nullable=True)
+    thumbnail = Column(String, nullable=True)
+    localizedTitle = Column(String, nullable=True)
+    localizedDescription = Column(String, nullable=True)
+    country = Column(String, nullable=True)
+    relatedPlaylistsLikes = Column(String, nullable=True)
+    relatedPlaylistsUploads = Column(String, nullable=True)
+    viewCount = Column(BigInteger, nullable=True)
+    subscribersCount = Column(BigInteger, nullable=True)
+    hiddenSubscriberCount = Column(Boolean, nullable=True)
+    videoCount = Column(BigInteger, nullable=True)
+    topicCategories = Column(ARRAY(String), nullable=True)
+    privacyStatus = Column(String, nullable=True)
+    isLinked = Column(Boolean, nullable=True)
+    longUploadsStatus = Column(String, nullable=True)
+    madeForKids = Column(Boolean, nullable=True)
+    brandingSettingsChannelTitle = Column(String, nullable=True)
+    brandingSettingsChannelDescription = Column(String, nullable=True)
+    brandingSettingsChannelKeywords = Column(String, nullable=True)
+    brandingSettingsChannelUnsubscribedTrailer = Column(String, nullable=True)
 
     # Relationships
     videos = relationship('Video', back_populates='channel')
-    authored_comments = relationship('Comment', back_populates='author_channel', foreign_keys='Comment.authorChannelId')
+    # authored_comments = relationship('Comment', back_populates='author_channel', foreign_keys='Comment.authorChannelId')
     received_comments = relationship('Comment', back_populates='target_channel', foreign_keys='Comment.channelId')
 
     def __repr__(self):
@@ -121,33 +123,34 @@ class Video(Base):
 
     __tablename__ = 'videos'
 
-    id = Column(BigInteger, primary_key=True)
-    publishedAt = Column(DateTime)
-    channelId = Column(BigInteger, ForeignKey('channels.id'), nullable=False)
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    videoId = Column(String, nullable=False, unique=True)
+    publishedAt = Column(DateTime, nullable=True)
+    channelId = Column(String, ForeignKey('channels.channelId'), nullable=False)
     title = Column(String, nullable=False)
-    description = Column(String)
-    thumbnail = Column(String)
-    channelTitle = Column(String)
-    tags = Column(ARRAY(String))
-    liveBroadcastContent = Column(String)
-    defaultLanguage = Column(String)
-    defaultAudioLanguage = Column(String)
-    categoryId = Column(String)
-    duration = Column(String)
-    dimension = Column(String)
-    definition = Column(String)
-    caption = Column(String)
-    licensedContent = Column(Boolean)
-    uploadStatus = Column(String)
-    privacyStatus = Column(String)
-    license = Column(String)
-    embeddable = Column(Boolean)
-    publicStatsViewable = Column(Boolean)
-    madeForKids = Column(Boolean)
-    viewsCount = Column(BigInteger)
-    likesCount = Column(BigInteger)
-    favoriteCount = Column(BigInteger)
-    comment_count = Column(BigInteger)
+    description = Column(String, nullable=True)
+    thumbnail = Column(String, nullable=True)
+    channelTitle = Column(String, nullable=True)
+    tags = Column(ARRAY(String), nullable=True)
+    liveBroadcastContent = Column(String, nullable=True)
+    defaultLanguage = Column(String, nullable=True)
+    defaultAudioLanguage = Column(String, nullable=True)
+    categoryId = Column(String, nullable=True)
+    duration = Column(String, nullable=True)
+    dimension = Column(String, nullable=True)
+    definition = Column(String, nullable=True)
+    caption = Column(String, nullable=True)
+    licensedContent = Column(Boolean, nullable=True)
+    uploadStatus = Column(String, nullable=True)
+    privacyStatus = Column(String, nullable=True)
+    license = Column(String, nullable=True)
+    embeddable = Column(Boolean, nullable=True)
+    publicStatsViewable = Column(Boolean, nullable=True)
+    madeForKids = Column(Boolean, nullable=True)
+    viewsCount = Column(BigInteger, nullable=True)
+    likesCount = Column(BigInteger, nullable=True)
+    favoriteCount = Column(BigInteger, nullable=True)
+    comment_count = Column(BigInteger, nullable=True)
 
     # Relationships
     channel = relationship('Channel', back_populates='videos')
@@ -179,7 +182,7 @@ class Subtitle(Base):
     __tablename__ = 'subtitles'
 
     id = Column(BigInteger, primary_key=True)
-    videoId = Column(BigInteger, ForeignKey('videos.id'), nullable=False)
+    videoId = Column(String, ForeignKey('videos.videoId'), nullable=False)
     text = Column(String)
     start = Column(Double)
     duration = Column(Double)
@@ -221,27 +224,29 @@ class Comment(Base):
 
     __tablename__ = 'comments'
 
-    id = Column(BigInteger, primary_key=True)
-    videoId = Column(BigInteger, ForeignKey('videos.id'), nullable=False)
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    commentId = Column(String, nullable=False, unique=True)
+    videoId = Column(String, ForeignKey('videos.videoId'), nullable=False)
     authorDisplayName = Column(String)
+    authorProfileImageUrl = Column(String)
     authorChannelUrl = Column(String)
-    authorChannelId = Column(BigInteger, ForeignKey('channels.id'))
-    channelId = Column(BigInteger, ForeignKey('channels.id'))
+    authorChannelId = Column(String)
+    # authorChannelId = Column(String, ForeignKey('channels.channelId'))
+    channelId = Column(String, ForeignKey('channels.channelId'))
     textDisplay = Column(String)
     textOriginal = Column(String)
-    parentId = Column(BigInteger, ForeignKey('comments.id'), nullable=True)
+    parentId = Column(String, ForeignKey('comments.commentId'), nullable=True)
     canRate = Column(Boolean)
     viewerRating = Column(String)
     likeCount = Column(BigInteger)
-    moderationStatus = Column(String)
     publishedAt = Column(DateTime)
     updatedAt = Column(DateTime)
 
     # Relationships
     video = relationship('Video', back_populates='comments')
-    author_channel = relationship('Channel', back_populates='authored_comments', foreign_keys=[authorChannelId])
+    # author_channel = relationship('Channel', back_populates='authored_comments', foreign_keys=[authorChannelId])
     target_channel = relationship('Channel', back_populates='received_comments', foreign_keys=[channelId])
-    parent_comment = relationship('Comment', remote_side=[id], uselist=False)
+    parent_comment = relationship('Comment', remote_side=[commentId], uselist=False)
 
     def __repr__(self):
         return (f"<Comment(id={self.id}, videoId={self.videoId}, authorDisplayName='{self.authorDisplayName}', "
@@ -251,7 +256,5 @@ class Comment(Base):
                 f"likeCount={self.likeCount}, moderationStatus='{self.moderationStatus}', "
                 f"publishedAt='{self.publishedAt}', updatedAt='{self.updatedAt}')>")
 
-
-engine = create_engine('postgresql://admin:admin@localhost:5432/postgres')
 
 Base.metadata.create_all(engine)
