@@ -13,7 +13,7 @@ YOUTUBE_API_URL = 'https://www.googleapis.com/youtube/v3/'
 youtube = build('youtube', 'v3', developerKey=API_KEY)
 
 
-def get_video_details(video_id: str) -> bool | None:
+def get_video_details(video_id: str):
     url = f'{YOUTUBE_API_URL}videos'
     params = {
         'part': 'snippet,contentDetails,status,statistics,paidProductPlacementDetails',
@@ -27,11 +27,21 @@ def get_video_details(video_id: str) -> bool | None:
         channel_id = video_info['snippet']['channelId']
         if not check_exists_channel_by_id(channel_id):
             get_channel_info(channel_id)
-        save_video_info(video_info, channel_id, video_id)
-        return True
+
+        urlApi = 'https://returnyoutubedislikeapi.com/votes'
+        params = {
+            'videoId': video_id,
+        }
+        response2 = requests.get(urlApi, params=params, headers={
+             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9",
+             "Pragma": "no-cache", "Cache-Control": "no-cache",
+             "Connection": "keep-alive"})
+
+        if response2.status_code == 200:
+            videoApi = response2.json()
+            save_video_info(video_info, videoApi, channel_id, video_id)
     else:
         print(f'Error: {response.status_code}')
-        return None
 
 
 def get_channel_info(channel_id):
@@ -47,9 +57,7 @@ def get_channel_info(channel_id):
     save_channel_info(channel_info, channel_id)
 
 
-def fetch_comments(video_id: str) -> list[dict]:
-    youtube = build('youtube', 'v3', developerKey=API_KEY)
-    comments = []
+def fetch_comments(video_id: str):
     counter = 0
     response = youtube.commentThreads().list(
         part='snippet, replies',
@@ -81,7 +89,6 @@ def fetch_comments(video_id: str) -> list[dict]:
             ).execute()
         else:
             break
-    return comments
 
 
 def get_transcript(video_id: str) -> list[dict]:

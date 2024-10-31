@@ -61,21 +61,17 @@ def get_channel_id(channel_handle: str):
         return None
 
 
-def main(channel_url: str, videdo_count: int):
+def main(channel_url: str, video_count: int):
     channel_handle = get_channel_handle_by_url(channel_url)
     channel_id = get_channel_id(channel_handle)
-    print(channel_id)
 
     channel_info = get_info.get_channel_info(channel_id)
-    print("Channel Info:", channel_info)
 
-    video_ids = get_latest_videos(channel_id, videdo_count)
+    video_ids = get_latest_videos(channel_id, video_count)
     print(*video_ids)
     print(len(video_ids))
     for video_id in video_ids:
-        video_info = get_info.get_video_details(video_id, channel_id)
-        print(video_info)
-        print(get_info.fetch_comments(video_id))
+        get_info.get_video_details(video_id)
 
 
 youtube_channel_url = input("Введите url канала YouTube: ")

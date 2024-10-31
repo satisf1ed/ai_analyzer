@@ -1,9 +1,7 @@
 import os
-import re
 
 from dotenv import load_dotenv
 from googleapiclient.discovery import build
-import requests
 import get_info
 
 load_dotenv()

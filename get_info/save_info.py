@@ -39,7 +39,7 @@ def save_channel_info(channel_info: dict, channel_id: str):
         session.commit()
 
 
-def save_video_info(video_info: dict, channel_id: str, video_id: str):
+def save_video_info(video_info: dict, video_api_info: dict, channel_id: str, video_id: str):
     if not check_exists_video_by_id(video_id):
         video_imp = Video(
             channelId=channel_id,
@@ -67,8 +67,11 @@ def save_video_info(video_info: dict, channel_id: str, video_id: str):
             madeForKids=video_info.get('status', {}).get('madeForKids', None),
             viewsCount=video_info.get('statistics', {}).get('viewCount', None),
             likesCount=video_info.get('statistics', {}).get('likeCount', None),
+            likesFromApi=video_api_info.get('likes', None),
+            dislikesFromApi=video_api_info.get('dislikes', None),
+            ratingFromApi=video_api_info.get('rating', None),
             favoriteCount=video_info.get('statistics', {}).get('favoriteCount', None),
-            comment_count=video_info.get('statistics', {}).get('commentCount', None))
+            commentCount=video_info.get('statistics', {}).get('commentCount', None))
         session.add(video_imp)
         session.commit()
 

@@ -149,8 +149,11 @@ class Video(Base):
     madeForKids = Column(Boolean, nullable=True)
     viewsCount = Column(BigInteger, nullable=True)
     likesCount = Column(BigInteger, nullable=True)
+    likesFromApi = Column(BigInteger, nullable=True)
+    dislikesFromApi = Column(BigInteger, nullable=True)
+    ratingFromApi = Column(Double, nullable=True)
     favoriteCount = Column(BigInteger, nullable=True)
-    comment_count = Column(BigInteger, nullable=True)
+    commentCount = Column(BigInteger, nullable=True)
 
     # Relationships
     channel = relationship('Channel', back_populates='videos')
