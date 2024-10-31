@@ -77,7 +77,7 @@ if popular_tags:
     fig = go.Figure(data=[go.Bar(x=tags, y=counts)])
 
     fig.update_layout(
-        title='Частота слов',
+        title='Частота тегов',
         xaxis_title='Теги',
         yaxis_title='Частота',
         xaxis_tickangle=-45
