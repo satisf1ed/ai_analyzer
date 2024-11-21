@@ -11,19 +11,19 @@ from googleapiclient.errors import HttpError
 
 load_dotenv()
 logger = logging.getLogger(__name__)
-API_KEY = os.getenv("API_KEY")
+# API_KEY = os.getenv("API_KEY")
 YOUTUBE_API_URL = 'https://www.googleapis.com/youtube/v3/'
-youtube = build('youtube', 'v3', developerKey=API_KEY)
+# youtube = build('youtube', 'v3', developerKey=API_KEY)
 
 MAX_REQUESTS_PER_DAY = 10000
 MAX_COMMENTS_PER_REQUEST = 100
 
-def get_video_details(video_id: str):
+def get_video_details(video_id: str, api_key):
     url = f'{YOUTUBE_API_URL}videos'
     params = {
         'part': 'snippet,contentDetails,status,statistics,paidProductPlacementDetails',
         'id': video_id,
-        'key': API_KEY
+        'key': api_key
     }
 
     response = requests.get(url, params=params)
@@ -31,7 +31,7 @@ def get_video_details(video_id: str):
         video_info = response.json()['items'][0]
         channel_id = video_info['snippet']['channelId']
         if not work_with_models.check_exists_channel_by_id(channel_id):
-            get_channel_info(channel_id)
+            get_channel_info(channel_id, api_key)
 
         urlApi = 'https://returnyoutubedislikeapi.com/votes'
         params = {
@@ -49,7 +49,8 @@ def get_video_details(video_id: str):
         print(f'Error: {response.status_code}')
 
 
-def get_channel_info(channel_id):
+def get_channel_info(channel_id, api_key):
+    youtube = build('youtube', 'v3', developerKey=api_key)
     request = youtube.channels().list(
         part='snippet,contentDetails,statistics,topicDetails,status,brandingSettings,contentOwnerDetails,localizations',
         id=channel_id)
@@ -58,10 +59,11 @@ def get_channel_info(channel_id):
     channel_info = response['items'][0]
     work_with_models.save_channel_info(channel_info, channel_id)
 
-def fetch_comments(video_id: str):
+def fetch_comments(video_id: str, api_key):
     counter = 0
     requests_made = 0
 
+    youtube = build('youtube', 'v3', developerKey=api_key)
     request_comments = youtube.commentThreads().list(
         part='snippet,replies',
         videoId=video_id,
@@ -116,19 +118,18 @@ def get_transcript(video_id: str) -> list[dict]:
     return transcript
 
 
-def get_latest_videos():
+def get_latest_videos(api_key, order_by):
     url = "https://www.googleapis.com/youtube/v3/search"
     params = {
         'part': 'id',
         'maxResults': 30,
-        'order': 'date',
+        'order': order_by,
         'videoCategoryId': 26,
         'type': 'video',
-        'key': API_KEY
+        'key': api_key
     }
 
     response = requests.get(url, params=params)
-
     if response.status_code == 200:
         videos = response.json().get('items', [])
         video_ids = [video['id']['videoId'] for video in videos]
@@ -138,22 +139,3 @@ def get_latest_videos():
         return []
 
 
-def main():
-    VIDEO_IDS = get_latest_videos()
-    while VIDEO_IDS:
-        video_id = VIDEO_IDS[0]
-        while True:
-            success, response, can_get = fetch_comments(video_id)
-            if not can_get:
-                break
-            if not success:
-                print('waiting...')
-                time.sleep(24*60*60)
-                break
-            if not response.get('nextPageToken'):
-                break
-        VIDEO_IDS.pop(0)
-        if len(VIDEO_IDS) == 0:
-            VIDEO_IDS = get_latest_videos()
-if __name__ == "__main__":
-    main()
